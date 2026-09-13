@@ -4,7 +4,7 @@ version = "2.6.2"
 edition = "2024"
 
 [dependencies]
-#artisan_middleware = "5.6.3"
+#artisan_middleware = "^6.0.0"
 artisan_middleware = {path = "/opt/artisan/lib/artisan_lib"} # local dev path; doesn't resolve on this machine, switched to registry version to build/test here
 config = "0.15.25"
 serde = "1.0.229"

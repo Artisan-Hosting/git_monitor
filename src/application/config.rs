@@ -44,6 +44,23 @@ pub fn app_git_config_path() -> String {
 }
 
 pub fn get_config() -> AppConfig {
+    if let Ok(content) = fs::read_to_string("runtime.toml") {
+        if let Ok(env_v2) = toml::from_str::<artisan_middleware::enviornment::definitions::Enviornment_V2>(&content) {
+            log!(LogLevel::Info, "Loaded gitmon configuration from Environment V2 (runtime.toml)");
+            return AppConfig {
+                app_name: env_v2.app_name,
+                max_ram_usage: env_v2.max_ram_usage,
+                max_cpu_usage: env_v2.max_cpu_usage,
+                environment: env_v2.environment.to_string(),
+                debug_mode: env_v2.debug_mode,
+                log_level: env_v2.log_level,
+                git: env_v2.git,
+                database: None,
+                aggregator: env_v2.aggregator,
+            };
+        }
+    }
+
     let mut config: AppConfig = match AppConfig::new() {
         Ok(loaded_data) => loaded_data,
         Err(e) => {
@@ -140,6 +157,12 @@ pub fn get_state_path(config: &AppConfig) -> PathType {
 }
 
 pub fn get_git_token_file() -> Option<String> {
+    if let Ok(contents) = fs::read_to_string("runtime.toml") {
+        if let Some(path) = parse_token_file_path(&contents) {
+            return Some(path);
+        }
+    }
+
     let contents = match fs::read_to_string("Overrides.toml") {
         Ok(contents) => contents,
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => return None,
